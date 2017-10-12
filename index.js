@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 
-app.set('port', (process.env.PORT || 8080));
+app.set('port', (process.env.PORT || 5000));
 // ROUTES
 // ===============================================
 
@@ -19,6 +19,6 @@ app.get('/test', function(req, res) {
 // START THE SERVER
 // ===============================================
 
-app.listen(port, function() {
-  console.log('Listening on port ' + port);
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
 });
