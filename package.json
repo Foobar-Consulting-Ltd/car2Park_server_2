@@ -1,0 +1,22 @@
+{
+  "name": "car2park_server",
+  "version": "1.0.0",
+  "description": "Car2Park server code",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Foobar-Consulting-Ltd/car2Park_server_2.git"
+  },
+  "author": "Justin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Foobar-Consulting-Ltd/car2Park_server_2/issues"
+  },
+  "homepage": "https://github.com/Foobar-Consulting-Ltd/car2Park_server_2#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
