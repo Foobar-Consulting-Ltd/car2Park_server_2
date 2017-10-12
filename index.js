@@ -18,7 +18,7 @@ app.get('/test', function(req, res) {
     );
 })
 
-app.get('/test2', function(req, res){
+app.get('/parkingspots', function(req, res){
 	dispatch.main(res, "");
 })
 
