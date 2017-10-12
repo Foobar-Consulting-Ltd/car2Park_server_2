@@ -1,6 +1,8 @@
 var express = require('express');
 var app = express();
 
+var dispatch = require('./dispatch.js');
+
 app.set('port', (process.env.PORT || 5000));
 // ROUTES
 // ===============================================
@@ -14,6 +16,10 @@ app.get('/test', function(req, res) {
 	res.send(
 		{name: ["peter", "lois", "bryan"]}
     );
+})
+
+app.get('/test2', function(req, res){
+	dispatch.main(res, "");
 })
 
 // START THE SERVER
