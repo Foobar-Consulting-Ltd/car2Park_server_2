@@ -16,11 +16,15 @@ app.get('/test', function(req, res) {
     res.send(
 	{name: ["peter", "lois", "bryan"]}
     );
-})
+});
 
 app.get('/parkingspots', function(req, res){
-    dispatch.main(req, res, "");
-})
+    dispatch.main(req, res, "park");
+});
+
+app.get('/applogin', function(req, res){
+    dispatch.main(req, res, "login");
+});
 
 // START THE SERVER
 // ===============================================

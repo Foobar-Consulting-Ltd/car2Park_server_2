@@ -1,5 +1,4 @@
 var routing = require('./c2g.js');
-var url = require('url');
 var messages = require('./messages.js');
 var location = require('./location.js');
 
@@ -13,22 +12,32 @@ var svinfo = {
 //	Main Dispatch Routine
 ////////////////////////////////////////////////////////////
 
-exports.main = function(req, res, url_string){
-    
-    var u = url.parse(url_string, true);
-    var ps = routing.getParkingSpots(function(o){
-	if(o != null && 'placemarks' in o){
-	    var retObj = {
-		name: 'Franklin',
-		server: svinfo,
-		args: u,
-		parkingspots: o['placemarks'],
-	    };
+exports.main = function(req, res, reqType){
+    switch(reqType){
+    case 'park':
+	var ps = routing.getParkingSpots(function(o){
+	    if(o != null && 'placemarks' in o){
+		var retObj = {
+		    name: 'Franklin',
+		    server: svinfo,
+		    args: req.query,
+		    parkingspots: o['placemarks'],
+		    parsed_location: (new messages.SpotRequest(req)).dest
+		};
+		res.send(JSON.stringify(retObj));
+		res.end();
+	    }else{
+		res.end('error getting parking spots');
+	    }
+	});
+	break;
 
-	    res.send(JSON.stringify(retObj), 200);
-	    res.end();
-	}else{
-	    res.end('error getting parking spots');
-	}
-    });
+    case 'login':
+	console.log('got login request');
+	res.end('login request handled');
+	break;
+
+    default:
+	res.status(404).end('Why u no access real page?');
+    }
 };

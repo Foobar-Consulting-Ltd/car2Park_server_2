@@ -59,6 +59,17 @@ describe('Request', function(){
     it('should have type Request', function(){
 	expect(message.type).toEqual('Request');
     });
+
+    describe('when constructed with a request object', function(){
+	beforeEach(function(){
+	    message = new dut.Request({query: {sender: 'Thomas',
+						    lat: 4, lng: 5, alt: 1}}); // Dummy request with fake url query.
+	});
+
+	it('should set the sender field', function(){
+	    expect(message.sender).toEqual('Thomas');
+	});
+    });
 });
 
 describe('SpotRequest', function(){
@@ -77,5 +88,18 @@ describe('SpotRequest', function(){
 
     it('should be of type SpotRequest', function(){
 	expect(message.type).toEqual('SpotRequest');
+    });
+
+    describe('when passed a request object', function(){
+	beforeEach(function(){
+	    message = new dut.SpotRequest({query: {sender: 'Thomas',
+						    lat: 4, lng: 5, alt: 1}}); // Dummy request with fake url query.
+	});
+
+	it('should set destination coordinates', function(){
+	    expect(message.dest.coordinates[0]).toEqual(4);
+	    expect(message.dest.coordinates[1]).toEqual(5);
+	    expect(message.dest.coordinates[2]).toEqual(1);
+	});
     });
 });

@@ -6,8 +6,8 @@ exports.Location = function(){
     this.coordinates = null;
     this.address = null;
 
-    this.setCoords = function(lat, lng, elv){
-	this.coordinates = [lat, lng, elv];
+    this.setCoords = function(lat, lng, alt){
+	this.coordinates = [lat, lng, alt];
     };
     this.setFromParkingSpot = function(ps){
 	if('coordinates' in ps){
