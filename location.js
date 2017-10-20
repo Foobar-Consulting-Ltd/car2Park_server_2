@@ -19,10 +19,10 @@ exports.Location = function(){
 	return false;
     };
 
-    this.toGmapString = function(){
+    this.toGmap = function(){
 	if(this.address != null)
 	    return this.address;
 	else
-	    return {lat: this.coordinates[0], lng: this.coordinates[1]};
+	    return this.coordinates[0].toString() + ',' + this.coordinates[1].toString();
     };
 };

@@ -30,7 +30,7 @@ var PathRank = exports.PathRank = function(origin, dests){
     this.results = null;
 
     this.addDest = function(dest){
-	this.dests.append(dest); // TODO: Prevent attaching duplicates
+	this.dests.push(dest); // TODO: Prevent attaching duplicates
 	this.results = null;	 // TODO: Don't clear everything, just replace new result.
     };
 
@@ -54,16 +54,18 @@ var PathRank = exports.PathRank = function(origin, dests){
 	    this.results = [];
 	    var input = [];
 	    for(var i = 0; i < this.dest.length; i++){
-		input[i] = this.dest[i].toGmapString();
+	    	input[i] = this.dest[i].toGmap();
 	    }
 
-	    gMapsClient.distanceMatrix({origins: this.origin.toGmapString(),
+	    gMapsClient.distanceMatrix({origins: this.origin.toGmap(),
 					destinations: input,
 					units: 'metric'}).asPromise()
 		.then((response) => {
 		    for(var i = 0; i < this.dest.length; i++){
-			this.results[i] = {location: this.dest[i],
-					   distance: response.json.rows[0].elements[i].distance.value};
+			if(response.json.rows[0].elements[i].status == "OK"){
+			    this.results.push({location: this.dest[i],
+						 distance: response.json.rows[0].elements[i].distance.value});
+			}
 		    }
 
 		    this.results = this.results.sort((a, b) => (a.distance - b.distance));
@@ -81,24 +83,22 @@ var PathRank = exports.PathRank = function(origin, dests){
 
 //test();	
 
-console.log('Doing some other stuff...');
+// var makeLocation = (addr) => {
+//     var o = new Location();
+//     o.address = addr;
+//     return o;
+// };
+// var pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
+// 		      [makeLocation('Calgary, AB, Canada'), makeLocation('Regina, SK, Canada'),
+// 		       makeLocation('Edmonton, AB, Canada'), makeLocation('Seattle, USA')]);
 
-var makeLocation = (addr) => {
-    var o = new Location();
-    o.address = addr;
-    return o;
-};
-var pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
-		      [makeLocation('Calgary, AB, Canada'), makeLocation('Regina, SK, Canada'),
-		       makeLocation('Edmonton, AB, Canada'), makeLocation('Seattle, USA')]);
+// console.log('pr has ' + pr.dest.length + ' destinations');
 
-console.log('pr has ' + pr.dest.length + ' destinations');
-
-pr.getRanked()
-    .then(function(res){
-	console.log('success?');
-	console.log(res);
-    }, function(err){
-	console.log('Some errors occured in the second one');
-	console.log(err);
-    });
+// pr.getRanked()
+//     .then(function(res){
+// 	console.log('success?');
+// 	console.log(res);
+//     }, function(err){
+// 	console.log('Some errors occured in the second one');
+// 	console.log(err);
+//     });
