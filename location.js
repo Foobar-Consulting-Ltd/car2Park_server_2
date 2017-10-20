@@ -18,4 +18,11 @@ exports.Location = function(){
 	}
 	return false;
     };
+
+    this.toGmapString = function(){
+	if(this.address != null)
+	    return this.address;
+	else
+	    return {lat: this.coordinates[0], lng: this.coordinates[1]};
+    };
 };
