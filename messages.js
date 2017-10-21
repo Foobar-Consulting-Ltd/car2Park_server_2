@@ -12,8 +12,8 @@ var Message = exports.Message = function(){
 
     //Serialize this object
     this.serialize = function(){
-	return JSON.stringify(this);
-    };
+       return JSON.stringify(this);
+   };
 };
 
 
@@ -22,8 +22,8 @@ var Request = exports.Request = function(req){
     Message.call();
     this.type = 'Request';
     if(req && 'query' in req){
-	this.sender = ('sender' in req.query) ? req.query.sender : '';
-    }
+       this.sender = ('sender' in req.query) ? req.query.sender : '';
+   }
 };
 Request.prototype = new Message();
 Request.prototype.constructor = Request;
@@ -36,10 +36,10 @@ var SpotRequest = exports.SpotRequest = function(req){
     this.dest = new location.Location();
 
     if(req && 'query' in req){
-	this.dest.setCoords(req.query.lat, req.query.lng, req.query.alt);
-	if('address' in req.query)
+       this.dest.setCoords(req.query.lat, req.query.lng, req.query.alt);
+       if('address' in req.query)
 	    this.dest.address = req.query.address; // Possible js injection...
-    }
+}
 };
 SpotRequest.prototype = new Request();
 SpotRequest.prototype.constructor = SpotRequest;
