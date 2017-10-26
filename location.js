@@ -20,7 +20,7 @@ exports.Location = function(){
     };
 
     this.toGmap = function(){
-	if(this.address != null)
+	if(this.coordinates[0] == null || this.coordintates[1] == null)
 	    return this.address;
 	else
 	    return this.coordinates[0].toString() + ',' + this.coordinates[1].toString();
