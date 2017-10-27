@@ -1,31 +1,32 @@
-const {Location} = require('location.js');
+const {Location} = require('./location.js');
+var m2 = require('mathjs');
 
 ////////////////////////////////////////////////////////////
 //	System Conversion Functions
 ////////////////////////////////////////////////////////////
-var d2r = x => x * math.PI / 180;
-var r2d = x => x * 180 / math.PI;
+var d2r = x => x * Math.PI / 180;
+var r2d = x => x * 180 / Math.PI;
 
 //Surface distance across sphere.
 var sdist = (lat1, lng1, lat2, lng2) =>
-    math.acos(math.sin(lat1) * math.sin(lat2) +
-	      math.cos(lat1) * math.cos(lat2) * math.cos(lng2 - lng1));
+    Math.acos(Math.sin(lat1) * Math.sin(lat2) +
+	      Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng2 - lng1));
 //Make a lat/lng pair into cartesian vector
 var l2c = (lat, lng) => [
-    cos(lat) * cos(lng),
-    cos(lat) * sin(lng),
-    sin(lat)
+    Math.cos(lat) * Math.cos(lng),
+    Math.cos(lat) * Math.sin(lng),
+    Math.sin(lat)
 ];
 
 //Returns [lat, lng, hyp] from [x, y, z] in standard coordinates
 var c2l = c => {
     var ret = [
 	0,
-	math.atan2(c[1], c[0]),
-	math.sqrt(math.pow(c[0], 2) + math.pow(c[1], 2))
+	Math.atan2(c[1], c[0]),
+	Math.sqrt(Math.pow(c[0], 2) + Math.pow(c[1], 2))
     ];
 
-    ret[0] = math.atan2(ret[2], ret[1]);
+    ret[0] = Math.atan2(ret[2], ret[1]);
     return ret;
 };
 
@@ -40,32 +41,32 @@ var BasisConverter = function(originLat, originLng, rotation){
     this.tc = rotation;		// Matrix gamma
 
     //Create component matrices
-    this.ma = math.matrix([[1, 0, 0],
-			   [0, math.cos(this.ta), -math.sin(this.ta)],
-			   [0, math.sin(this.ta), math.cos(this.ta)]]);
-    this.mb = math.matrix([[0, math.sin(this.tb), math.cos(this.tb)],
+    this.ma = m2.matrix([[1, 0, 0],
+			   [0, Math.cos(this.ta), -Math.sin(this.ta)],
+			   [0, Math.sin(this.ta), Math.cos(this.ta)]]);
+    this.mb = m2.matrix([[0, Math.sin(this.tb), Math.cos(this.tb)],
 			   [1, 0, 0],
-			   [0, math.cos(this.tb), -math.sin(this.tb)]]);
-    this.mc = math.matrix([[0, math.cos(this.ta), -math.sin(this.ta)],
-			   [0, math.sin(this.ta), math.cos(this.ta)],
+			   [0, Math.cos(this.tb), -Math.sin(this.tb)]]);
+    this.mc = m2.matrix([[0, Math.cos(this.ta), -Math.sin(this.ta)],
+			   [0, Math.sin(this.ta), Math.cos(this.ta)],
 			   [1, 0, 0]]);
 
     //Compute the aggregate transformation matrix
-    this.matrix = math.multiply(math.multiply(this.ma, this.mb), this.mc);
-    this.antiMatrix = math.inv(matrix);
+    this.matrix = m2.multiply(m2.multiply(this.ma, this.mb), this.mc);
+    this.antiMatrix = m2.inv(this.matrix);
 
     //Convert a standard lat/lng pair to a transformed coordinate
     this.convert = function(lat, lng){
 	//Convert to point and transform
 	var p = l2c(lat, lng);
-	p = math.multiply(this.matrix, p);
+	p = m2.multiply(this.matrix, p);
 
 	return p;
     }
 
     //Converts an x/y/z point in the altered basis to a standard lat/lng pair
     this.revert = function(point){
-	var p = math.multiply(this.antiMatrix, point);
+	var p = m2.multiply(this.antiMatrix, point);
 	return c2l(p);
     }
 }
@@ -84,7 +85,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
     var PsGridSpot = function(lat, lng, neighbours){
 	this.lat = lat;
 	this.lng = lng;
-	this.neighbours = neighbours; // [right, up, left, down]
+	this.neighbours = neighbours ? neighbours : new Array(4); // [right, up, left, down]
 	this.points = [];	      // A list of all contained points
     }
 
@@ -95,13 +96,13 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
     this._centerRow = rows;
     this.skew = d2r(rotOffset);
     this.grid;			// Lookup grid
-    this._points = []
+    this._points = [];
 
     ////////////////////////////////////////////////////////////
     //Methods
     ////////////////////////////////////////////////////////////
     //Find the centroid given the current points
-    this._findCentroid() = function(){
+    this._findCentroid = function(){
 	var count = 0;
 	var cartesianSum = [0, 0, 0];
 
@@ -147,15 +148,15 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	
 	//Find maximum x/y deviation from center
 	for(var p in points){
-	    var c = this.bConverter.convert(p.location.lat, p.location.lng);
+	    var c = this.bConverter.convert(points[p].location.coordinates[0], points[p].location.coordinates[1]);
 
-	    if(math.abs(c[1]) > dy) dy = math.abs(c[1]);
-	    if(math.abs(c[2]) > dz) dz = math.abs(c[2]);
+	    if(Math.abs(c[1]) > dy) dy = Math.abs(c[1]);
+	    if(Math.abs(c[2]) > dz) dz = Math.abs(c[2]);
 	}
 
 	//Optimal dX/dY est. at max deviation / count
-	dx /= (this._columns - 1) / 2 ;
-	dy /= (this._rows - 1) / 2;
+	dy /= (this._columns - 1) / 2 ;
+	dz /= (this._rows - 1) / 2;
 
 	//Populate grid reference points
 	this.grid = new Array(this._columns);

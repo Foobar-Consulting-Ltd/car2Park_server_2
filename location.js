@@ -2,9 +2,9 @@
 //	Location Class
 ////////////////////////////////////////////////////////////
 
-exports.Location = function(){
-    this.coordinates = null;
-    this.address = null;
+exports.Location = function(coords = null, address = null){
+    this.coordinates = coords;
+    this.address = address;
 
     this.setCoords = function(lat, lng, alt){
 	this.coordinates = [lat, lng, alt];
