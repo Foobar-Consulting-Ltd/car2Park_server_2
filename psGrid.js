@@ -202,15 +202,10 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	}
     }
 
-    //Bin a single point
-    this._bin = function(point){
-	if(!(point in this._points)) this._points.push(point);
-	if(!this.grid) this._setupGrid();
-
+    //Finds the grid spot closest to the provided  location.
+    this._getClosest = function(lat, lng){
 	var next = this.grid[this._centerCol][this._centerRow];
-	var d = sdist(point.location.coordinates[0],
-		      point.location.coordinates[1],
-		      next.lat, next.lng);
+	var d = sdist(lat, lng, next.lat, next.lng);
 	var res;
 
 	do{
@@ -221,9 +216,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 		var s2 = res.neighbours[i];
 		if(s2 == null) continue;
 
-		var d2 = sdist(point.location.coordinates[0],
-			       point.location.coordinates[1],
-			       s2.lat, s2.lng);
+		var d2 = sdist(lat, lng, s2.lat, s2.lng);
 
 		if(d2 < d){
 		    next = s2;
@@ -231,8 +224,17 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 		}
 	    }
 	}while(next);
-	
-	res.points.push(point);
+
+	return res;
+    };
+
+    //Bin a single point
+    this._bin = function(point){
+	if(!(point in this._points)) this._points.push(point);
+	if(!this.grid) this._setupGrid();
+
+	this._getClosest(point.location.coordinates[0], point.location.coordinates[1])
+	    .points.push(point);
     }
     
     //Resets the grid and bins all of the points
@@ -243,6 +245,48 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	    this._bin(this._points[p]);
 	}
     };
+
+    //Returns a list of vehicles in adjacent grid cells.
+    this.findSpots = function(lat, lng, minSpots = 5){
+	var c = this._getClosest(lat, lng);
+	var res = c.points;
+
+	if(minSpots < 0)
+	    minSpots = 0;
+	if(minSpots > this._points.length)
+	    minSpots = this._points.length;
+
+	
+	var searched = [c], toSearch = [];
+	var markForSearch = function(x){
+	    if(x == null) return;
+	    if(searched.some( a => a === x)) return;
+	    if(toSearch.some( a => a === x)) return;
+	    toSearch.push(x);
+	};
+	var nextSearch = function(){
+	    toSearch.sort((a, b) =>
+			  sdist(a.lat, a.lng, lat, lng) <
+			  sdist(b.lat, b.lng, lat, lng));
+	    return toSearch.shift();
+	};
+
+	for(var i in c.neighbours)
+	    markForSearch(c.neighbours[i]);
+
+	//Keep searching if we don't have enough spots
+	do{
+	    c = nextSearch();
+	    if(!c) break;	// Ran out of searchable nodes
+	    searched.push(c);
+	    res = [].concat(res, c.points);
+	    
+	    for(var i in c.neighbours)
+		markForSearch(c.neighbours[i]);
+	}while(res.length < minSpots);
+
+	return res; // Return if we have enough spots
+    }
 
 
     //Add all the points to the inner points object after checks.
