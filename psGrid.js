@@ -26,7 +26,7 @@ var c2l = c => {
 	Math.sqrt(Math.pow(c[0], 2) + Math.pow(c[1], 2))
     ];
 
-    ret[0] = Math.atan2(ret[2], ret[1]);
+    ret[0] = Math.atan2(c[2], ret[2]);
     return ret;
 };
 
@@ -35,40 +35,42 @@ var c2l = c => {
 ////////////////////////////////////////////////////////////
 //Applies a rotation matrix to determine a point's re-mapped coordinates
 //Returned coordinates are relative to the new point, with [1, 0, 0] being the origin
-var BasisConverter = function(originLat, originLng, rotation){
+var BasisConverter = function(originLat, originLng, rotation = 0){
     this.ta = -originLat;	// Matrix alpha
     this.tb = -originLng;	// Matrix beta
-    this.tc = rotation;		// Matrix gamma
+    this.tc = -rotation;	// Matrix gamma
 
     //Create component matrices
-    this.ma = m2.matrix([[1, 0, 0],
-			   [0, Math.cos(this.ta), -Math.sin(this.ta)],
-			   [0, Math.sin(this.ta), Math.cos(this.ta)]]);
-    this.mb = m2.matrix([[0, Math.sin(this.tb), Math.cos(this.tb)],
-			   [1, 0, 0],
-			   [0, Math.cos(this.tb), -Math.sin(this.tb)]]);
-    this.mc = m2.matrix([[0, Math.cos(this.ta), -Math.sin(this.ta)],
-			   [0, Math.sin(this.ta), Math.cos(this.ta)],
-			   [1, 0, 0]]);
+    this.ma = m2.matrix([[Math.cos(this.tb),	-Math.sin(this.tb),	0],
+			 [Math.sin(this.tb),	Math.cos(this.tb),	0],
+			 [0,			0,			1]]);
+    
+    this.mb = m2.matrix([[Math.cos(this.ta),	0,			-Math.sin(this.ta)],
+			 [0,			1,			0],
+			 [Math.sin(this.ta),	0,			Math.cos(this.ta)]]);
+    
+    this.mc = m2.matrix([[1,			0,			0],
+			 [0,			Math.cos(this.tc),	-Math.sin(this.tc)],
+			 [0,			Math.sin(this.tc),	Math.cos(this.tc)]]);
 
     //Compute the aggregate transformation matrix
-    this.matrix = m2.multiply(m2.multiply(this.ma, this.mb), this.mc);
-    this.antiMatrix = m2.inv(this.matrix);
+    this.matrix = m2.multiply(this.mc, m2.multiply(this.mb, this.ma));
+    this.invMatrix = m2.inv(this.matrix);
 
+    
     //Convert a standard lat/lng pair to a transformed coordinate
     this.convert = function(lat, lng){
 	//Convert to point and transform
 	var p = l2c(lat, lng);
 	p = m2.multiply(this.matrix, p);
 
-	return p;
+	return p._data;
     }
 
-    //Converts an x/y/z point in the altered basis to a standard lat/lng pair
-    this.revert = function(point){
-	var p = m2.multiply(this.antiMatrix, point);
-	return c2l(p);
-    }
+    this.revert = function(c){
+	c = m2.multiply(this.invMatrix, c);
+	return c2l(c._data);
+    };
 }
 
 
@@ -96,7 +98,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
     this._centerRow = rows;
     this.skew = d2r(rotOffset);
     this.grid;			// Lookup grid
-    this._points = [];
+    this._points = [];		// Blank points array; will insert points later
 
     ////////////////////////////////////////////////////////////
     //Methods
@@ -106,18 +108,15 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	var count = 0;
 	var cartesianSum = [0, 0, 0];
 
-	for(var point in this.points){
-	    //Check that point satisfies data requirements.
-	    //TODO: Geocode location if address only?
-	    if(!('location' in point && point.location instanceof Location &&
-		 point.location.hasCoords())) continue;
 
-	    this._points.push(point); // Save
+
+	for(var p in this._points){
+	    var point = this._points[p];
 	    count++;
 
 	    //Aggregate in centroid calculation
-	    var lat = d2p(point.location.coords[0]);
-	    var lng = d2p(point.location.coords[1]);
+	    var lat = d2r(point.location.coordinates[0]);
+	    var lng = d2r(point.location.coordinates[1]);
 	    var c = l2c(lat, lng);
 	    cartesianSum[0] += c[0];
 	    cartesianSum[1] += c[1];
@@ -147,8 +146,9 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	var dy = 0, dz = 0;
 	
 	//Find maximum x/y deviation from center
-	for(var p in points){
-	    var c = this.bConverter.convert(points[p].location.coordinates[0], points[p].location.coordinates[1]);
+	for(var p in this._points){
+	    var point = this._points[p];
+	    var c = this.bConverter.convert(d2r(point.location.coordinates[0]), d2r(point.location.coordinates[1]));
 
 	    if(Math.abs(c[1]) > dy) dy = Math.abs(c[1]);
 	    if(Math.abs(c[2]) > dz) dz = Math.abs(c[2]);
@@ -165,13 +165,12 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 
 	    for(var z = 0; z < this._rows; z++){
 		//Revert grid point to standard coordinates
-		var c = c2l(
-		    this.bConverter.revert(
-			[0,
+		var c = this.bConverter.revert(
+			[1,
 			 dy * (y - this._centerCol),
-			 dz * (z - this._centerRow)]));
+			 dz * (z - this._centerRow)]);
 		
-		this.grid[y][z] = new PsGridSpot(c[0], c[1]);
+		this.grid[y][z] = new PsGridSpot(r2d(c[0]), r2d(c[1]));
 	    }
 	}
 
@@ -205,12 +204,12 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 
     //Bin a single point
     this._bin = function(point){
-	if(!(point in this.points)) this.points.push(point);
+	if(!(point in this._points)) this._points.push(point);
 	if(!this.grid) this._setupGrid();
 
 	var next = this.grid[this._centerCol][this._centerRow];
 	var d = sdist(point.location.coordinates[0],
-		      point.locatoin.coordinates[1],
+		      point.location.coordinates[1],
 		      next.lat, next.lng);
 	var res;
 
@@ -219,11 +218,11 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	    next = null;
 
 	    for(var i = 0; i < 4; i++){
-		var s2 = s.neighbours[i];
+		var s2 = res.neighbours[i];
 		if(s2 == null) continue;
 
 		var d2 = sdist(point.location.coordinates[0],
-			       point.locatoin.coordinates[1],
+			       point.location.coordinates[1],
 			       s2.lat, s2.lng);
 
 		if(d2 < d){
@@ -240,10 +239,22 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
     this.reBinAll = function(){
 	this._setupGrid();	
 	
-	for(var p in this.points){
-	    this.bin(p);
+	for(var p in this._points){
+	    this._bin(this._points[p]);
 	}
     };
+
+
+    //Add all the points to the inner points object after checks.
+    for(var p in points){
+	var point = points[p];
+	//Check that point satisfies data requirements.
+	//TODO: Geocode location if address only?
+	if(!('location' in point && point.location instanceof Location &&
+	     point.location.hasCoords())) continue;
+
+	this._points.push(point); // Save
+    }
 
     //Finally, bin all the data points (creates grid)
     this.reBinAll();

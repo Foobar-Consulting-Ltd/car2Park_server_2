@@ -26,5 +26,5 @@ exports.Location = function(coords = null, address = null){
 	    return this.coordinates[0].toString() + ',' + this.coordinates[1].toString();
     };
 
-    this.hasCoords = () => this.coords != null; // whether location has coords
+    this.hasCoords = () => this.coordinates != null; // whether location has coords
 };

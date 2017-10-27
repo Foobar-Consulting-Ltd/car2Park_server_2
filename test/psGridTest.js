@@ -45,5 +45,19 @@ for(var i in c2gResponse){
 		spot: ps});
 }
 
-var grid = new PsGrid(12, 12, spots);
+var grid = new PsGrid(4, 4, spots);
+
+
+var sum = 0, count = 0;
+for(var x in grid.grid){
+    for(var y in grid.grid[x]){
+	var g = grid.grid[x][y];
+	console.log('Grid[', x, '][', y, '] at (', g.lat, ',', g.lng, ') has ', g.points.length)
+	sum += g.points.length;
+	count ++;
+    }
+}
+
+console.log('Average ps/gridPoint:  ', sum / count);
+	
 
