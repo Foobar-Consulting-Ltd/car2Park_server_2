@@ -68,7 +68,7 @@ describe('Parking Spot Grid', function(){
 	});
 
 	it('should return all the spots', function(){
-	    expect(pr.length).toBeGreaterThanOrEqual(grid._points.length);
+	    expect(pr.length).toEqual(grid._points.length);
 	});
     });
 

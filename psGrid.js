@@ -230,7 +230,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 
     //Bin a single point
     this._bin = function(point){
-	if(!(point in this._points)) this._points.push(point);
+	if(!(this._points.some((p) => p === point))) this._points.push(point); // Insert point if not contained.
 	if(!this.grid) this._setupGrid();
 
 	this._getClosest(point.location.coordinates[0], point.location.coordinates[1])
@@ -297,7 +297,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	if(!('location' in point && point.location instanceof Location &&
 	     point.location.hasCoords())) continue;
 
-	this._points.push(point); // Save
+	this._points.push(point); // Save each point
     }
 
     //Finally, bin all the data points (creates grid)
