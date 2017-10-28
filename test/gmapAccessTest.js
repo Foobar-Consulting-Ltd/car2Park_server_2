@@ -25,10 +25,6 @@ const entryCount = 5;
 
 makePr();
 
-// console.log(JSON.stringify(pr));
-// for(var i = 0; i < pr.dest.length; i++)
-//     console.log(pr.dest[i].toGmap());
-
 describe('Google maps destination matrix', function(){
     beforeAll(function(){
 	// nothing?
@@ -50,10 +46,10 @@ describe('Google maps destination matrix', function(){
 	//Pass in done function for async setup.
 	beforeAll(function(done){
 	    pr.getRanked()
-		.then(res =>{
+		.then(res => {
 		    results = res;
 		    done()
-		}, (err) =>{
+		}, (err) => {
 		    fail();
 		});
 	}, 10000);

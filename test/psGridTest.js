@@ -2,38 +2,75 @@ const {PsGrid} = require('../psGrid.js');
 const {Location} = require('../location.js');
 var c2g = require('../c2g.js');
 
-//Create a list of location objects
-c2g.getParkingSpots(function(c2gResponse){
-    c2gResponse = c2gResponse.placemarks;
-    var spots = [];
-    for(var i in c2gResponse){
-	var ps = c2gResponse[i];
-	// console.log(JSON.stringify(ps));
-	spots.push({location: new Location([ps.coordinates[1], ps.coordinates[0], ps.coordinates[2]]),
-		    spot: ps});
-    }
 
-    var grid = new PsGrid(4, 4, spots);
+describe('Parking Spot Grid', function(){
+    var grid;			// Eventual PsGrid object
 
+    beforeAll(function(done){
+	c2g.getParkingSpots(function(c2gResponse){
+	    c2gResponse = c2gResponse.placemarks;
+	    var spots = [];
+	    for(var i in c2gResponse){
+		var ps = c2gResponse[i];
 
-    var sum = 0, count = 0;
-    for(var x in grid.grid){
-	for(var y in grid.grid[x]){
-	    var g = grid.grid[x][y];
-	    // console.log('Grid[', x, '][', y, '] at (', g.lat, ',', g.lng, ') has ', g.points.length);
-	    sum += g.points.length;
-	    count ++;
+		spots.push({
+		    location: new Location([ps.coordinates[1], ps.coordinates[0], ps.coordinates[2]]),
+		    spot: ps
+		});
+	    }
+
+	    grid = new PsGrid(4, 4, spots);
+	    
+	    done();
+	});
+    });
+
+    it('should have a 9 by 9 grid', function(){
+	expect(grid.grid.length).toEqual(9);
+	expect(grid.grid[0].length).toEqual(9);
+    });
+
+    it('Should have avg. 1-2 spots per point', function(){
+   	var sum = 0, count = 0;
+	for(var x in grid.grid){
+	    for(var y in grid.grid[x]){
+		var g = grid.grid[x][y];
+		sum += g.points.length;
+		count ++;
+	    }
 	}
-    }
 
-    console.log('Average ps/gridPoint:  ', sum / count);
+	expect(count).toBeGreaterThan(50);
+	expect(count).toBeLessThan(200);
+	expect(sum / count).toBeLessThan(2);
+	expect(sum / count).toBeGreaterThan(1);
+    });
 
-    var pr = grid.findSpots(49.2603, -123.24940, 15);
-    var pr2 = new Array(pr.length);
-    for(var i in pr){
-	pr2[i] = pr[i].spot;
-    }
+    describe('when 15 nearby spots requested', function(){
+	var pr
+
+	beforeAll(function(){
+	    pr = grid.findSpots(49.2603, -123.24940, 15); // Somewhere near ubc
+	    pr.forEach((cv) => cv.spot);
+	});
+
+	it('should return at least 15 spots', function(){
+	    expect(pr.length).toBeGreaterThanOrEqual(15);
+	});
+    });
+
+    describe('when more spots requested than available', function(){
+	var pr
+
+	beforeAll(function(){
+	    pr = grid.findSpots(49.2603, -123.24940, 400); // Somewhere near ubc
+	    pr.forEach((cv) => cv.spot);
+	});
+
+	it('should return all the spots', function(){
+	    expect(pr.length).toBeGreaterThanOrEqual(grid._points.length);
+	});
+    });
+
     
-    console.log('Found ', pr2.length, ' spots by UBC: ', pr2);
-    console.log('Found: ', pr2.length, ' of total: ', sum);
 });
