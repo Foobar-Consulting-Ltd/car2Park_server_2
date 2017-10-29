@@ -2,9 +2,9 @@
 //	Location Class
 ////////////////////////////////////////////////////////////
 
-exports.Location = function(){
-	this.coordinates = null;
-	this.address = null;
+exports.Location = function(addr = null, cord = null){
+	this.coordinates = cord;
+	this.address = addr;
 
 	this.setCoords = function(lat, lng, alt){
 		this.coordinates = [lat, lng, alt];
@@ -18,4 +18,14 @@ exports.Location = function(){
 		}
 		return false;
 	};
+
+	this.toGmap = function(){
+		if(this.coordinates[0] == null || this.coordinates[1] == null) {
+			return this.address;
+		}
+		else {
+			return this.coordinates[0].toString() + ',' + this.coordinates[1].toString();
+		}
+	};
+
 };
