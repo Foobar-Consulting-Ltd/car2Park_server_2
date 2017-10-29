@@ -81,7 +81,7 @@ var BasisConverter = function(originLat, originLng, rotation = 0){
 //Param: columns	Number of column to draw on this grid.
 //Param: rows		Number of rows to draw on this grid
 //Param: rotOffset	Rotational offset clockwise (in degrees);
-var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
+var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset = 0){
     //PsGridSpot Class
     //Takes center position and neighbouring gridspots
     var PsGridSpot = function(lat, lng, neighbours){
@@ -166,9 +166,9 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	    for(var z = 0; z < this._rows; z++){
 		//Revert grid point to standard coordinates
 		var c = this.bConverter.revert(
-			[1,
-			 dy * (y - this._centerCol),
-			 dz * (z - this._centerRow)]);
+		    [1,
+		     dy * (y - this._centerCol),
+		     dz * (z - this._centerRow)]);
 		
 		this.grid[y][z] = new PsGridSpot(r2d(c[0]), r2d(c[1]));
 	    }
@@ -288,7 +288,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	return res; // Return if we have enough spots
     }
 
-
+    
     //Add all the points to the inner points object after checks.
     for(var p in points){
 	var point = points[p];
@@ -296,7 +296,7 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset){
 	//TODO: Geocode location if address only?
 	if(!('location' in point && point.location instanceof Location &&
 	     point.location.hasCoords())) continue;
-
+	
 	this._points.push(point); // Save each point
     }
 

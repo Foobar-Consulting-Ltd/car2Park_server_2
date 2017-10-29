@@ -3,22 +3,22 @@ const {PathRank } = require('../gmapsAccess.js');
 var pr;
 
 const makePr = function(){
-    var makeLocation = (addr) => {
-	var o = new Location();
-	o.address = addr;
-	return o;
-    };
+	var makeLocation = (addr) => {
+		var o = new Location();
+		o.address = addr;
+		return o;
+	};
 
-    var makeCoord = function(lat, lng){
-	var o = new Location();
-	o.setCoords(lat, lng, 0);
-	return o;
-    }
+	var makeCoord = function(lat, lng){
+		var o = new Location();
+		o.setCoords(lat, lng, 0);
+		return o;
+	};
 
-    pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
-		      [makeLocation('Calgary, AB, Canada'), makeLocation('Regina, SK, Canada'),
-		       makeLocation('Edmonton, AB, Canada'), makeLocation('Seattle, USA'),
-		       makeCoord(45, -75)]); // Last one is somewhere near ottawa
+	pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
+			  [makeLocation('Calgary, AB, Canada'), makeLocation('Regina, SK, Canada'),
+			   makeLocation('Edmonton, AB, Canada'), makeLocation('Seattle, USA'),
+			   makeCoord(45, -75)]); // Last one is somewhere near ottawa
 };
 
 const entryCount = 5;

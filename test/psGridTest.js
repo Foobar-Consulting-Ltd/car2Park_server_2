@@ -14,7 +14,7 @@ describe('Parking Spot Grid', function(){
 		var ps = c2gResponse[i];
 
 		spots.push({
-		    location: new Location([ps.coordinates[1], ps.coordinates[0], ps.coordinates[2]]),
+		    location: new Location(null, [ps.coordinates[1], ps.coordinates[0], ps.coordinates[2]]),
 		    spot: ps
 		});
 	    }
@@ -40,8 +40,8 @@ describe('Parking Spot Grid', function(){
 	    }
 	}
 
-	expect(count).toBeGreaterThan(50);
-	expect(count).toBeLessThan(200);
+	expect(sum).toBeGreaterThan(50);
+	expect(sum).toBeLessThan(200);
 	expect(sum / count).toBeLessThan(2);
 	expect(sum / count).toBeGreaterThan(1);
     });
