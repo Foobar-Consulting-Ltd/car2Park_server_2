@@ -4,15 +4,17 @@ var pr;
 
 const makePr = function(){
 	var makeLocation = (addr) => {
-		var o = new Location();
-		o.address = addr;
-		return o;
+	    return {
+		location: new Location(addr)
+	    };
 	};
+    
 
 	var makeCoord = function(lat, lng){
-		var o = new Location();
-		o.setCoords(lat, lng, 0);
-		return o;
+	    return {
+		location :new Location(null, [lat, lng])
+	    };
+
 	};
 
 	pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
@@ -30,14 +32,15 @@ describe('Google maps destination matrix', function(){
 	// nothing?
     });
 
-    it('should contain a list of location objects', function(){
+    it('should contain a list of objects with location property', function(){
 	expect(pr.dest instanceof Array).toBeTruthy();
 	expect(pr.dest.length).toEqual(entryCount);
-	expect(pr.dest[0] instanceof Location).toBeTruthy();
+	expect('location' in pr.dest[0]).toBeTruthy();
+	expect(pr.dest[0].location instanceof Location).toBeTruthy();
     });
 
     it('should have a single origin', function(){
-	expect(pr.origin instanceof Location).toBeTruthy();
+	expect(pr.origin.location instanceof Location).toBeTruthy();
     });
 
     describe('when ranked distances requested', function(){
