@@ -36,10 +36,10 @@ var SpotRequest = exports.SpotRequest = function(req){
     this.dest = new location.Location();
 
     if(req && 'query' in req){
-       this.dest.setCoords(req.query.lat, req.query.lng, req.query.alt);
-       if('address' in req.query)
-	    this.dest.address = req.query.address; // Possible js injection...
-}
+	this.dest.setCoords(req.query.lat, req.query.lng, req.query.alt);
+	if('address' in req.query)
+	    this.dest.address = req.query.address; // Injection site?
+    }
 };
 SpotRequest.prototype = new Request();
 SpotRequest.prototype.constructor = SpotRequest;
