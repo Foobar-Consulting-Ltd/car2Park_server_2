@@ -15,7 +15,8 @@
   "homepage": "https://github.com/Foobar-Consulting-Ltd/car2Park_server_2#readme",
   "dependencies": {
     "@google/maps": "^0.4.5",
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "mathjs": "^3.16.5"
   },
   "engines": {
     "node": "6.11.4"
