@@ -17,7 +17,8 @@ var svinfo = {
 var spotGrid;
 var c2gSpots;
 var spotUpdateTimer, requestCount = 0;;
-const spotGridTimeout = 30000;
+const SPOTGRIDTIMEOUT = 30000;
+const MAXDIST = 2500;
 
 var updateGrid = function(){
     if(spotGrid){
@@ -44,7 +45,7 @@ var updateGrid = function(){
 		    if(requestCount > 0){
 			updateGrid();
 		    }
-		}, spotGridTimeout);
+		}, SPOTGRIDTIMEOUT);
 
 		console.log('PsGrid updated with avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
 	    }
@@ -85,7 +86,7 @@ exports.main = function(req, res, reqType){
 			    server: svinfo,
 			    args: req.query,
 			    parsedLocation: origin,
-			    parkingSpots: rankedSpotsRes // TODO: Attach parking spot object to this as well.
+			    parkingSpots: rankedSpotsRes.filter(s => s.distance < MAXDIST)
 			};
 			res.send(JSON.stringify(retObj));
 			res.end();
