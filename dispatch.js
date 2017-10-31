@@ -16,23 +16,41 @@ var svinfo = {
 
 var spotGrid;
 var c2gSpots;
+var spotUpdateTimer, requestCount = 0;;
+const SPOTGRIDTIMEOUT = 30000;
+const MAXDIST = 2500;
 
 var updateGrid = function(){
-    routing.getParkingSpots(function(o){
-	if(o && 'placemarks' in o){
-	    c2gSpots = o.placemarks;
-	    c2gSpots.map((spot) => {
-		spot.coordinates = [spot.coordinates[1], spot.coordinates[0], spot.coordinates[2]];
-	    });
+    if(spotGrid){
+	requestCount ++;	// Increment the request count
+    }else{
+	requestCount = 0;	// Reset the request count for this interval
+	
+	routing.getParkingSpots(function(o){
+	    if(o && 'placemarks' in o){
+		c2gSpots = o.placemarks;
+		c2gSpots.map((spot) => {
+		    spot.coordinates = [spot.coordinates[1], spot.coordinates[0], spot.coordinates[2]];
+		});
 
-	    spotGrid = new PsGrid(4, 4, c2gSpots.map((s) => {
-		return {
-		    location: new Location(null, s.coordinates),
-		    spot: s
-		};
-	    }));
-	}
-    });
+		spotGrid = new PsGrid(7, 7, c2gSpots.map((s) => {
+		    return {
+			location: new Location(null, s.coordinates),
+			spot: s
+		    };
+		}));
+
+		setTimeout(() => {
+		    spotGrid = null;
+		    if(requestCount > 0){
+			updateGrid();
+		    }
+		}, SPOTGRIDTIMEOUT);
+
+		console.log('PsGrid updated with avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
+	    }
+	});
+    }
 };
 
 updateGrid();
@@ -48,15 +66,13 @@ exports.main = function(req, res, reqType){
 	    if(o != null && 'placemarks' in o){
 
 		var origin = (new messages.SpotRequest(req)).dest; //Grab the destination to look for car2go parking spots aroun
-		//Create a new gird if it doesn't exist.
-		if(!spotGrid){
-		    console.log('Creating grid');
-		    updateGrid();
-		}
-		
+
+		//Trigger grid update
+		updateGrid();		
+
+		//Get nearest gridded spots
 		var destinations = spotGrid
-		    .findSpots(origin.coordinates[0], origin.coordinates[1], 15);
-		
+		    .findSpots(origin.coordinates[0], origin.coordinates[1], 25);
 		console.log('SpotGrid returned # destination: ', destinations.length);
 		
 		//Rank all the parking spots and send back the list of parking spots in order based on distance
@@ -70,7 +86,7 @@ exports.main = function(req, res, reqType){
 			    server: svinfo,
 			    args: req.query,
 			    parsedLocation: origin,
-			    parkingSpots: rankedSpotsRes // TODO: Attach parking spot object to this as well.
+			    parkingSpots: rankedSpotsRes.filter(s => s.distance < MAXDIST)
 			};
 			res.send(JSON.stringify(retObj));
 			res.end();
