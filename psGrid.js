@@ -158,6 +158,9 @@ var PsGrid = exports.PsGrid = function(columns, rows, points, rotOffset = 0){
 	dy /= (this._columns - 1) / 2 ;
 	dz /= (this._rows - 1) / 2;
 
+	console.log('dy set to ', dy * 6371, ' km');
+	console.log('dz set to ', dz * 6371, ' km');
+
 	//Populate grid reference points
 	this.grid = new Array(this._columns);
 	for(var y = 0; y < this._columns; y++){

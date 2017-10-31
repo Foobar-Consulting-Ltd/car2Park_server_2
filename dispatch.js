@@ -25,12 +25,14 @@ var updateGrid = function(){
 		spot.coordinates = [spot.coordinates[1], spot.coordinates[0], spot.coordinates[2]];
 	    });
 
-	    spotGrid = new PsGrid(4, 4, c2gSpots.map((s) => {
+	    spotGrid = new PsGrid(7, 7, c2gSpots.map((s) => {
 		return {
 		    location: new Location(null, s.coordinates),
 		    spot: s
 		};
 	    }));
+
+	    console.log('PsGrid has avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
 	}
     });
 };
@@ -53,10 +55,10 @@ exports.main = function(req, res, reqType){
 		    console.log('Creating grid');
 		    updateGrid();
 		}
-		
+
+		//Get nearest gridded spots
 		var destinations = spotGrid
-		    .findSpots(origin.coordinates[0], origin.coordinates[1], 15);
-		
+		    .findSpots(origin.coordinates[0], origin.coordinates[1], 25);
 		console.log('SpotGrid returned # destination: ', destinations.length);
 		
 		//Rank all the parking spots and send back the list of parking spots in order based on distance
