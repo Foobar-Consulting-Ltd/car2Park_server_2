@@ -16,25 +16,40 @@ var svinfo = {
 
 var spotGrid;
 var c2gSpots;
+var spotUpdateTimer, requestCount = 0;;
+const spotGridTimeout = 30000;
 
 var updateGrid = function(){
-    routing.getParkingSpots(function(o){
-	if(o && 'placemarks' in o){
-	    c2gSpots = o.placemarks;
-	    c2gSpots.map((spot) => {
-		spot.coordinates = [spot.coordinates[1], spot.coordinates[0], spot.coordinates[2]];
-	    });
+    if(spotGrid){
+	requestCount ++;	// Increment the request count
+    }else{
+	requestCount = 0;	// Reset the request count for this interval
+	
+	routing.getParkingSpots(function(o){
+	    if(o && 'placemarks' in o){
+		c2gSpots = o.placemarks;
+		c2gSpots.map((spot) => {
+		    spot.coordinates = [spot.coordinates[1], spot.coordinates[0], spot.coordinates[2]];
+		});
 
-	    spotGrid = new PsGrid(7, 7, c2gSpots.map((s) => {
-		return {
-		    location: new Location(null, s.coordinates),
-		    spot: s
-		};
-	    }));
+		spotGrid = new PsGrid(7, 7, c2gSpots.map((s) => {
+		    return {
+			location: new Location(null, s.coordinates),
+			spot: s
+		    };
+		}));
 
-	    console.log('PsGrid has avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
-	}
-    });
+		setTimeout(() => {
+		    spotGrid = null;
+		    if(requestCount > 0){
+			updateGrid();
+		    }
+		}, spotGridTimeout);
+
+		console.log('PsGrid updated with avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
+	    }
+	});
+    }
 };
 
 updateGrid();
@@ -50,11 +65,9 @@ exports.main = function(req, res, reqType){
 	    if(o != null && 'placemarks' in o){
 
 		var origin = (new messages.SpotRequest(req)).dest; //Grab the destination to look for car2go parking spots aroun
-		//Create a new gird if it doesn't exist.
-		if(!spotGrid){
-		    console.log('Creating grid');
-		    updateGrid();
-		}
+
+		//Trigger grid update
+		updateGrid();		
 
 		//Get nearest gridded spots
 		var destinations = spotGrid
