@@ -46,8 +46,6 @@ var updateGrid = function(){
 			updateGrid();
 		    }
 		}, SPOTGRIDTIMEOUT);
-
-		console.log('PsGrid updated with avg ', c2gSpots.length / (15 * 15), ' lots per grid point');
 	    }
 	});
     }
@@ -73,7 +71,6 @@ exports.main = function(req, res, reqType){
 		//Get nearest gridded spots
 		var destinations = spotGrid
 		    .findSpots(origin.coordinates[0], origin.coordinates[1], 25);
-		console.log('SpotGrid returned # destination: ', destinations.length);
 		
 		//Rank all the parking spots and send back the list of parking spots in order based on distance
 		//TODO: Improve algorthm to take account of availible spots

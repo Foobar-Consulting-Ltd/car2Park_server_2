@@ -49,6 +49,7 @@ SpotRequest.prototype.constructor = SpotRequest;
 var Response = exports.Response = function(req){
     Message.call();
     this.type = 'Response';
+    this.trigMessage = req;
 };
 Response.prototype = new Message();
 Response.prototype.constructor = Response;

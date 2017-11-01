@@ -12,8 +12,8 @@ exports.Location = function(addr = null, cord = null){
     };
     this.setFromParkingSpot = function(ps){
 	if('coordinates' in ps){
-	    this.setCoords(ps.coordinates[0],
-			   ps.coordinates[1],
+	    this.setCoords(ps.coordinates[1],
+			   ps.coordinates[0],
 			   ps.coordinates[2]);
 	    return true;
 	}
@@ -29,7 +29,7 @@ exports.Location = function(addr = null, cord = null){
 	}
     };
 
-    this.hasCoords = () => this.coordinates[0]!= null &&
+    this.hasCoords = () => this.coordinates[0] != null &&
 	this.coordinates[1] != null &&
 	this.coordinates[2] != null;
 };

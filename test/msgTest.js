@@ -103,3 +103,16 @@ describe('SpotRequest', function(){
 		});
 	});
 });
+
+describe('Response', function(){
+    var trig;
+    
+    beforeEach(function(){
+	trig = new dut.Message();
+	message = new dut.Response(trig);
+    });
+
+    it('should contain the message that triggered it', function(){
+	expect(message.trigMessage === trig).toBeTruthy();
+    });
+});

@@ -13,12 +13,12 @@ var gMapsClient = require('@google/maps').createClient({
 //Param destinations:	(optional) A list of objects with property 'location' that are the destinations
 var PathRank = exports.PathRank = function(origin, dests){
     this.origin = origin;
-    this.dest = dests instanceof Array ? dests.filter(d => 'location' in d) : [];
+    this.dest = dests && dests instanceof Array ? dests.filter(d => 'location' in d) : [];
     this.results = null;
 
     this.addDest = function(dest){
 	if(!('location' in dest)) return;
-	this.dests.push(dest); // TODO: Prevent attaching duplicates
+	this.dest.push(dest); // TODO: Prevent attaching duplicates
 	this.results = null;	 // TODO: Don't clear everything, just replace new result.
     };
 

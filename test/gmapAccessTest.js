@@ -1,35 +1,35 @@
 const { Location } = require('../location.js');
-const {PathRank } = require('../gmapsAccess.js');
+const { PathRank } = require('../gmapsAccess.js');
+
 var pr;
 
+var makeLocation = (addr) => {
+    return {
+	location: new Location(addr)
+    };
+};
+
+var makeCoord = function(lat, lng){
+    return {
+	location: new Location(null, [lat, lng])
+    };
+
+};
+
 const makePr = function(){
-	var makeLocation = (addr) => {
-	    return {
-		location: new Location(addr)
-	    };
-	};
-    
-
-	var makeCoord = function(lat, lng){
-	    return {
-		location :new Location(null, [lat, lng])
-	    };
-
-	};
-
-	pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
-			  [makeLocation('Calgary, AB, Canada'), makeLocation('Regina, SK, Canada'),
-			   makeLocation('Edmonton, AB, Canada'), makeLocation('Seattle, USA'),
-			   makeCoord(45, -75)]); // Last one is somewhere near ottawa
+    pr = new PathRank(makeLocation('Vancouver, BC, Canada'),
+		      [makeLocation('Calgary, AB, Canada'),
+		       makeLocation('Regina, SK, Canada'),
+		       makeLocation('Edmonton, AB, Canada'),
+		       makeLocation('Seattle, USA'),
+		       makeCoord(45, -75)]); // Last one is somewhere near ottawa
 };
 
 const entryCount = 5;
 
-makePr();
-
 describe('Google maps destination matrix', function(){
     beforeAll(function(){
-	// nothing?
+	makePr();
     });
 
     it('should contain a list of objects with location property', function(){
@@ -71,6 +71,28 @@ describe('Google maps destination matrix', function(){
 		expect(results[i].distance).toBeGreaterThan(last);
 		last = results[i].distance;
 	    }
+	});
+    });
+});
+
+describe('Initially empty PathRank object', function(){
+    beforeAll(function(){
+	pr = new PathRank(makeLocation('Vancouver, BC, Canada'), null);
+    });
+
+    it('should contain 0 destinations', function(){
+	expect(pr.dest.length).toEqual(0);
+    });
+
+    describe('when a destination is added', function(){
+	beforeAll(function(){
+	    pr = new PathRank(makeLocation('Vancouver, BC, Canada'), null);
+	    pr.addDest(makeLocation('Calgary, AB, Canada'));
+	});
+	
+	it('should appear in the destination list', function(){
+	    expect(pr.dest.length).toEqual(1);
+	    expect(pr.dest[0].location.address).toEqual('Calgary, AB, Canada');
 	});
     });
 });
