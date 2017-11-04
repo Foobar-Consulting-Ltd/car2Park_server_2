@@ -7,5 +7,5 @@ notifications:
   email:
     recipients:
       - foobarcpen321@gmail.com
-    on_success: never # default: always
-    on_failure: always # default: always
+    on_success: always
+    on_failure: always
