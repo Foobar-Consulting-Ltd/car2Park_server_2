@@ -16,6 +16,7 @@
   "dependencies": {
     "@google/maps": "^0.4.5",
     "express": "^4.16.2",
+    "istanbul": "^0.4.5",
     "jasmine-node": "^1.14.5",
     "mathjs": "^3.16.5"
   },
@@ -26,6 +27,6 @@
     "jasmine": "^2.8.0"
   },
   "scripts": {
-    "test": "istanbul cover --include-all-sources node_modules/jasmine/bin/jasmine.js"
+    "test": "istanbul cover node_modules/jasmine/bin/jasmine.js"
   }
 }
