@@ -18,8 +18,7 @@ describe('Message', function(){
 	});
 
 	it('should have empty sender', function(){
-		expect(message.sender).toEqual("12345");
-		//expect(message.sender).toEqual("");
+		expect(message.sender).toEqual("");
 	});
 
 	it('should have no send time', function(){
