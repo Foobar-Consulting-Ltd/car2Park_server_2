@@ -1,7 +1,8 @@
 const {Location} = require('./location.js');
 
 var gMapsClient = require('@google/maps').createClient({
-    key: 'AIzaSyDT8dvsdA-hdSdbpfK-dw9QnOT-eDA0QZo',
+    key: 'AIzaSyAfPCPAqQK1TMbrkQLOXoV-wd0KGQICZ0I',
+//    key: 'AIzaSyDT8dvsdA-hdSdbpfK-dw9QnOT-eDA0QZo',
     Promise: Promise
 });
 

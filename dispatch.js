@@ -94,6 +94,8 @@ exports.main = function(req, res, reqType){
 				res.end();
 			    }, (err) => {
 				console.log(err);
+				res.send('Big fat error: ' + err)
+				res.end();
 			    });
 		    }, function(){
 			res.end('error getting parking spots');
