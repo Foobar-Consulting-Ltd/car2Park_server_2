@@ -9,3 +9,11 @@ notifications:
       - foobarcpen321@gmail.com
     on_success: always
     on_failure: always
+
+branches:
+  only:
+  - master
+  - ci_test
+
+after_success:
+- npm run coveralls
