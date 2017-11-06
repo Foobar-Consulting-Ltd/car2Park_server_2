@@ -27,7 +27,7 @@ var PathRank = exports.PathRank = function(origin, dests){
 
 //Get weighted distance with availible parking spots
 var getWeightedDistance = function(availiblitySpots){
-	if (availiblitySpots <= 0) return 0;
+	if (availiblitySpots <= 1) return 0;
 	return ( (WEIGHTEDSPOTDISTANCE/(Math.pow(2, availiblitySpots-1))) + getWeightedDistance(availiblitySpots-1) );
 };
 
