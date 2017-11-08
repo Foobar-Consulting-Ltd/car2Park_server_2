@@ -15,7 +15,6 @@ app.set('port', (process.env.PORT || 5000));
 passport.use(new Strategy(
     {cookieName: 'auth'},
     function(token, done){
-	console.log(token)
 	return done(null, 'Fred');
     }
 ));
@@ -32,7 +31,8 @@ app.get('/test', function(req, res) {
     res.send(
 	{
 	    name: ["peter", "lois", "bryan"],
-	    your_cookies: req.cookies
+	    your_cookies: req.cookies,
+	    protocol: req.protocol
 	}
     );
 });
@@ -40,11 +40,15 @@ app.get('/test', function(req, res) {
 app.get('/parkingspots',
 	passport.authenticate("cookie", { session: false }),
 	function(req, res){
-	    console.log('Was secure: ' + req.secure);
-	    dispatch.main(req, res, "park");
+	    console.log(req.user)
+	    if(req.protocol == 'http'){
+		dispatch.main(req, res, "park");
+	    }else{
+		res.status(400);
+	    }
 	});
 
-app.get('/applogin', function(req, res){
+app.get('/login', function(req, res){
     dispatch.main(req, res, "login");
 });
 
