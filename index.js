@@ -43,7 +43,7 @@ app.get('/parkingspots',
 	passport.authenticate("cookie", { session: false }),
 	function(req, res){
 	    console.log(req.user)
-	    if(req.protocol == 'http'){
+	    if(1 || req.protocol == 'https'){
 		dispatch.main(req, res, "park");
 	    }else{
 		res.status(400);
