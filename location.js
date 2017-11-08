@@ -29,6 +29,8 @@ exports.Location = function(addr = null, cord = null){
 	}
     };
 
+    this.valid = () => this.address || (this.coordinates[0] && this.coordinates[1]);
+
     this.hasCoords = () => this.coordinates[0] != null &&
 	this.coordinates[1] != null &&
 	this.coordinates[2] != null;

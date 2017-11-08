@@ -68,7 +68,15 @@ exports.main = function(req, res, reqType){
 	var ps = routing.getParkingSpots(function(o){
 	    if(o != null && 'placemarks' in o){
 
-		var origin = (new messages.SpotRequest(req)).dest; //Grab the destination to look for car2go parking spots aroun
+		m = new messages.SpotRequest(req);
+		if(!m || !m.dest.valid()){
+		    // User is dumb
+		    res.status(400).send('Invalid request format');
+		    res.end();
+		    return;
+		}
+		
+		var origin = m.dest; //Grab the destination to look for car2go parking spots aroun
 
 		//Trigger grid update
 		updateGrid()
