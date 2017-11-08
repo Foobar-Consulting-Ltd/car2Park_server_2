@@ -1,7 +1,9 @@
 var express = require('express');
+var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
 var app = express();
-app.use(cookieParser())		// Parse cookies from incoming messages
+app.use(cookieParser());		// Parse cookies from incoming messages
+app.use(bodyParser.json());		// Parse json-encoded body of post request
 
 var dispatch = require('./dispatch.js');
 var passport = require('passport');
@@ -48,8 +50,12 @@ app.get('/parkingspots',
 	    }
 	});
 
-app.get('/login', function(req, res){
-    dispatch.main(req, res, "login");
+app.post('/login', function(req, res){
+    if(1 || req.protocol == 'https'){
+	dispatch.main(req, res, "login");
+    }else{
+	res.status(400);
+    }
 });
 
 // START THE SERVER

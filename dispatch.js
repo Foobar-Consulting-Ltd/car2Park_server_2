@@ -116,7 +116,9 @@ exports.main = function(req, res, reqType){
 
 
     case 'login':
+	var email = 'email' in req.body ? req.body.email : null;
 	console.log('got login request');
+	console.log(email);
 	res.end('login request handled');
 	break;
 
