@@ -88,11 +88,11 @@ WHERE email = '` + email + "';",
 			if(urow['key_valid']){
 			    resolve(urow.email);
 			}else{
-			    reject('key not yet valid');
+			    resolve(null); // No user
 			}
 		    },
 		    (err) => {
-			reject('key not found');
+			resolve(null); // User not yet valid
 		    }
 		);
 	});
