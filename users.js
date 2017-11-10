@@ -1,4 +1,5 @@
 const {Client} = require('pg');
+var pHash = require('password-hash');
 
 // The user authentication system
 const Users = module.exports = (function(){
@@ -52,6 +53,27 @@ WHERE key_valid = false;`,
 	});
     };
 
+    const _deleteUserByEmail = function(email){
+	return new Promise(function(resolve, reject){
+	    var client = new Client({
+		connectionString: process.env.DATABASE_URL
+	    });
+
+	    client.connect();
+	    client.query(`
+		DELETE FROM c2gdat.users
+WHERE email = '` + email + "';",
+		(err, res) => {
+		    if(err){
+			reject(err);
+		    }else{
+			resolve(res.rows);
+		    }
+		    client.end();
+		});
+	});
+    }
+
     // Check to see the provided key exists and is valid.
     // Resolves if the key is valide.
     // Rejects otherwise
@@ -76,39 +98,51 @@ WHERE key_valid = false;`,
 	});
     };
 
+    // Adds a user account
+    // Returns a promise that resolves if successful
     this.addUser = function(email){
-	return new Promise(function(resolve, reject){
-	    var insertUser = function(email){
-		var client = new Client({
-		    connectionString: process.env.DATABASE_URL
-		});
+	var insertUser = function(email){
+	    var client = new Client({
+		connectionString: process.env.DATABASE_URL
+	    });
 
-		var key;
-		
-		client.connect();
-		client.query(
-		    `INSERT INTO c2gdat.users
-VALUES (` + key + ", '" + email + "', false);",
-		    (err, res) => {
-			if(err){
-			    if(err.code == 23505){
-				insertUser(email);
-			    }
-			}
-			client.end();
-		    });
-	    }
+	    console.log('here');
+	    var nonce = Math.floor(Math.random() * 256)
+	    var key = pHash.generate(email + nonce);
+	    console.log('inserting ' + email + ' with key ' + key);
 	    
+	    client.connect();
+	    client.query(
+		`INSERT INTO c2gdat.users
+VALUES ('` + key + "', '" + email + "', false);",
+		(err, res) => {
+		    if(err){
+			console.log(err);
+			if(err.code == 23505){
+			    insertUser(email);
+			}
+		    }
+		    
+		    client.end();
+		});
+	}
+
+	return new Promise(function(resolve, reject){
 	    _getPendingUsers()
 		.then(
 		    (res) => {
 			r = res.find(r => r['email'] == email);
-			if(r){
-			    resolve();
-			}else{
-			    insertUser(email);
-			    resolve();
+			if(!r){
+			    console.log('replacing user');
+			    _deleteUserByEmail(email)
+				.then((res) => {
+				    insertUser(email);
+				}, (err) => {
+				    console.log(err);
+				});
 			}
+
+			resolve();
 		    }, (err) => {
 			reject(err);
 		    });
@@ -116,7 +150,7 @@ VALUES (` + key + ", '" + email + "', false);",
     };
 
     //Validates a user based on the provided email
-    this.validateUser = function(email){
+    this.verifyUser = function(email){
 	_getPendingUsers()
 	    .then(
 		(res) => {
@@ -130,38 +164,21 @@ VALUES (` + key + ", '" + email + "', false);",
 			client.query(
 			    `UPDATE c2gdat.users
 SET key_valid = true
-WHERE access_key = ` + r.access_key + ';',
+WHERE access_key = '` + r.access_key + "';",
 			    (err, res) => {
 				client.end();
 			    });
+		    }else{
+			console.log('User ' + email + ' not pending');
 		    }
+		}, (err) => {
+		    console.log(err);
 		});
     };
     
     return {
 	authenticate: this.authenticate,
-	validateUser: this.validateUser,
+	verifyUser: this.verifyUser,
 	addUser: this.addUser
     };
 })();
-
-
-Users.authenticate(1)
-    .then(
-	(res) => {
-	    console.log('all good');
-	}, (err) => {
-	    console.log(err);
-	}
-    );
-
-Users.authenticate(2)
-    .then(
-	(res) => {
-	    console.log('all good');
-	}, (err) => {
-	    console.log(err);
-	}
-    );
-
-Users.addUser('will@mail.net');
