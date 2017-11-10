@@ -15,7 +15,7 @@ const Users = module.exports = (function(){
 	    client.query(
 		`SELECT * 
 FROM c2gdat.users
-WHERE access_key = ` + key + ';',
+WHERE access_key = '` + key + "';",
 		(err, res) => {
 		    if(err){
 			reject(err);
@@ -86,7 +86,7 @@ WHERE email = '` + email + "';",
 		    (res) => {
 			urow = res[0];
 			if(urow['key_valid']){
-			    resolve();
+			    resolve(urow.email);
 			}else{
 			    reject('key not yet valid');
 			}

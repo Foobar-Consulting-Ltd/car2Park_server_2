@@ -9,6 +9,9 @@ var dispatch = require('./dispatch.js');
 var passport = require('passport');
 
 const {Strategy} = require('passport-cookie');
+var Users = require('./users.js');
+
+console.log(Users);
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -17,7 +20,13 @@ app.set('port', (process.env.PORT || 5000));
 passport.use(new Strategy(
     {cookieName: 'auth'},
     function(token, done){
-	return done(null, 'Fred');
+	Users.authenticate(token)
+	    .then(
+		(res) => {
+		    done(null, res);
+		}, (err) => {
+		    done(err);
+		});
     }
 ));
 
