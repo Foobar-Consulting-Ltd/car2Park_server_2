@@ -25,7 +25,9 @@
     "mathjs": "^3.16.5",
     "passport": "^0.4.0",
     "passport-cookie": "^1.0.4",
-    "passport-strategy": "^1.0.0"
+    "passport-strategy": "^1.0.0",
+    "password-hash": "^1.2.2",
+    "pg": "^7.4.0"
   },
   "engines": {
     "node": "6.11.4"
