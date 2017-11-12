@@ -101,7 +101,7 @@ WHERE email = '` + email + "';",
     // Adds a user account
     // Returns a promise that resolves if successful
     this.addUser = function(email){
-	var insertUser = function(email){
+	var insertUser = function(email, resolve, reject){
 	    var client = new Client({
 		connectionString: process.env.DATABASE_URL
 	    });
@@ -119,8 +119,13 @@ VALUES ('` + key + "', '" + email + "', false);",
 		    if(err){
 			console.log(err);
 			if(err.code == 23505){
-			    insertUser(email);
+			    insertUser(email, resolve, reject);
+			}else{
+			    reject();
 			}
+		    }else{
+			console.log('we did it!');
+			resolve(key);
 		    }
 		    
 		    client.end();
@@ -136,13 +141,15 @@ VALUES ('` + key + "', '" + email + "', false);",
 			    console.log('replacing user');
 			    _deleteUserByEmail(email)
 				.then((res) => {
-				    insertUser(email);
+				    console.log('about to insert');
+				    insertUser(email, resolve, reject);
 				}, (err) => {
 				    console.log(err);
+				    reject();
 				});
+			}else{
+			    resolve(r['access_key']);
 			}
-
-			resolve();
 		    }, (err) => {
 			reject(err);
 		    });

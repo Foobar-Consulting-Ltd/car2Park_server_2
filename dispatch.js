@@ -3,6 +3,7 @@ var messages = require('./messages.js');
 const {Location} = require('./location.js');
 const {PathRank} = require('./gmapsAccess.js');
 const {PsGrid} = require('./psGrid.js');
+var users = require('./users.js');
 
 var svinfo = {
     version: 0.1,
@@ -119,7 +120,13 @@ exports.main = function(req, res, reqType){
 	var email = 'user_email' in req.body ? req.body.user_email : null;
 	console.log('got login request');
 	console.log(email);
-	res.end('login request handled');
+	// TODO: Screen email format to prevent SQL injection
+	users.addUser(email)
+	    .then((result) => {
+		res.send(result);
+	    }, (err) => {
+
+	    });
 	break;
 
     default:
