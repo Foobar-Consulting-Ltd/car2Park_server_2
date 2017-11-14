@@ -121,12 +121,16 @@ exports.main = function(req, res, reqType){
 	console.log('got login request');
 	console.log(email);
 	// TODO: Screen email format to prevent SQL injection
-	users.addUser(email)
-	    .then((result) => {
-		res.send(result);
-	    }, (err) => {
-
-	    });
+	if(!email){
+	    res.status(400).end();
+	}else{
+	    users.addUser(email)
+		.then((result) => {
+		    res.send(result);
+		}, (err) => {
+		    res.status(400).end(err);
+		});
+	}
 	break;
 
     default:
