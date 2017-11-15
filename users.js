@@ -3,8 +3,69 @@ var pHash = require('password-hash');
 
 // The user authentication system
 const Users = module.exports = (function(){
-    // TODO: Some stuff
+    // Initialize database with desired structure
+    var client = new Client({
+	connectionString: process.env.DATABASE_URL
+    });
 
+    client.connect();
+    client.query(
+	`SELECT schema_name
+FROM information_schema.schemata
+WHERE schema_name = 'c2gdat';`, (err, res) =>
+	    {
+		if(err){
+		    client.end();
+		    throw err;
+		}
+
+		if(res.rowCount < 1){
+		    console.log('Schema missing: adding c2gdat schema');
+		    client.query(
+			'CREATE SCHEMA c2gdat', (err, res) =>
+			    {
+				if(err){
+				    client.end();
+				    throw err;
+				}
+			    });
+		}
+
+		
+		// Check for the correct table
+		client.query(
+		    `SELECT table_name
+FROM information_schema.tables
+WHERE table_name = 'users'
+AND table_schema = 'c2gdat'`, (err2, res2) =>
+			{
+			    if(err2){
+				clent.end();
+				throw err2;
+			    }
+
+			    if(res2.rowCount < 1){
+				console.log('Table missing: adding users table');
+				client.query(
+				    `CREATE TABLE c2gdat.users(
+access_key	varchar(256) PRIMARY KEY,
+email		varchar(128) NOT NULL,
+key_valid	bool
+)`, (err3, res3) =>
+					{
+					    client.end();
+					    
+					    if(err3){
+						throw err3;
+					    }
+					});
+			    }else{
+				client.end();
+			    }
+			});
+	    });
+    
+    // Return all rows matching the provided access_key
     const _getRowByKey = function(key){
 	return new Promise(function(resolve, reject){
 	    var client = new Client({
@@ -31,6 +92,7 @@ WHERE access_key = '` + key + "';",
 	});
     };
 
+    // Return a list of users with pending access
     const _getPendingUsers = function(){
 	return new Promise(function(resolve, reject){
 	    var client = new Client({
@@ -53,6 +115,7 @@ WHERE key_valid = false;`,
 	});
     };
 
+    // Remove all user records with a matching email address.
     const _deleteUserByEmail = function(email){
 	return new Promise(function(resolve, reject){
 	    var client = new Client({
