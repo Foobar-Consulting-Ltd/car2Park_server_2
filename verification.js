@@ -61,6 +61,7 @@ var VerifyEmail = exports.VerifyEmail = function(id){
 			console.log("GET HERE");
 			users.verifyUser(email);
 			resolve("YAY");
+
 		});
 	}
 
