@@ -1,6 +1,9 @@
 var express = require('express');
 var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
+
+// var nodemailer = require("nodemailer");
+
 var app = express();
 app.use(cookieParser());		// Parse cookies from incoming messages
 app.use(bodyParser.json());		// Parse json-encoded body of post request
@@ -30,6 +33,16 @@ passport.use(new Strategy(
     }
 ));
 
+//SMTP
+// var smtpTransport = nodemailer.createTransport({
+//     service: "Gmail",
+//     auth: {
+//         user: "foobarcpen321@gmail.com",
+//         pass: "P@ssw0rd123"
+//     }
+// });
+// var mailOptions,host,link;
+
 // ROUTES
 // ===============================================
 
@@ -58,6 +71,14 @@ app.get('/parkingspots',
 		res.status(400);
 	    }
 	});
+
+app.get('/verify', function(req, res){
+	if(1 || req.protocol == 'https'){
+		dispatch.main(req, res, "verify");
+	}else{
+		res.status(400);
+	}
+})
 
 app.post('/login', function(req, res){
     if(1 || req.protocol == 'https'){
