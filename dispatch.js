@@ -116,13 +116,19 @@ exports.main = function(req, res, reqType){
 
 
     case 'login':
-	var email = 'user_email' in req.body ? req.body.user_email : null;
+	if(!(email in req.body)){
+	    res.status(400).end();
+	    return;
+	}
+	const ePat = /\w+@\w+\.\w+/i;
+	var email = ePat.exec(req.body.user_email);
 	console.log('got login request');
 	console.log(email);
-	// TODO: Screen email format to prevent SQL injection
+
 	if(!email){
 	    res.status(400).end();
 	}else{
+	    email = email[0];	// Extract the matching pattern.
 	    users.addUser(email)
 		.then((result) => {
 		    res.send(result);
