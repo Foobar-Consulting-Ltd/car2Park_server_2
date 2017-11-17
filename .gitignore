@@ -4,3 +4,6 @@ coverage/*
 
 #Environment Scripts
 envSetup.sh
+
+#Environment variables
+.env

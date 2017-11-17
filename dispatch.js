@@ -1,5 +1,6 @@
 var routing = require('./c2g.js');
 var messages = require('./messages.js');
+var Verification = require('./verification.js');
 const {Location} = require('./location.js');
 const {PathRank} = require('./gmapsAccess.js');
 const {PsGrid} = require('./psGrid.js');
@@ -126,11 +127,39 @@ exports.main = function(req, res, reqType){
 	}else{
 	    users.addUser(email)
 		.then((result) => {
-		    res.send(result);
+			var loginVerification = new Verification.SendVerification(email, req.get('host'));
+			loginVerification.sendEmailVerification()
+			.then((response) => {
+				console.log(response);
+				res.send(result);
+				res.end();
+			}, (err) => {
+				console.log("bad");
+				res.send("Something went wrong");
+				res.end();
+			});
 		}, (err) => {
 		    res.status(400).end(err);
 		});
 	}
+
+	
+	// res.end('login request handled');
+	break;
+
+	case 'verify':
+	console.log('Verify user');
+	var loginVerification = new Verification.VerifyEmail(req.query.id);
+	loginVerification.verifyEmail()
+		.then((response) => {
+			console.log('YAY', response);
+			res.send("Email has been verified. Enjoy using our app");
+			res.end();
+		}, (err) => {
+			console.log("bad");
+			res.send("Something went wrong with verifying your email");
+			res.end();
+		});
 	break;
 
     default:
