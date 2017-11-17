@@ -54,17 +54,13 @@ var VerifyEmail = exports.VerifyEmail = function(id){
 	this.verifyEmail = function(){
 		return new Promise((resolve, reject) => {
 			//Handles case if the dictionary is cleared
-			if(email == NULL) {
-				reject("Please enter your email again to verify", 500);
-			}
-			users.verifyUser(email)
-				.then((response) => {
-					console.log('good', response);
-					resolve(response);
-				}, (err) => {
-					reject(err, 500);
-				});
-
+			console.log('email:', email);
+			// if(email == NULL) {
+			// 	reject("Please enter your email again to verify", 500);
+			// }
+			console.log("GET HERE");
+			users.verifyUser(email);
+			resolve("YAY");
 		});
 	}
 
