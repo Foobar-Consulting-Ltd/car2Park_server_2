@@ -221,7 +221,6 @@ VALUES ('` + key + "', '" + email + "', false);",
 			var client = new Client({
 			    connectionString: process.env.DATABASE_URL
 			});
-			
 			client.connect();
 			client.query(
 			    `UPDATE c2gdat.users
