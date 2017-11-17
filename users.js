@@ -244,17 +244,17 @@ WHERE access_key = '` + r.access_key + "';",
     };
 })();
 
-Users.addUser('will@starfleet.net')
-    .then((r) => {
-	console.log(r);
-	Users.addUser('will@starfleet.net')
-	    .then((r) => {
-		console.log(r)
-		Users.verifyUser('will@starfleet.net')
-		setTimeout(() => {
-		    Users.addUser('will@starfleet.net');
-		}, 1000);
-	    });
-    });
+// Users.addUser('will@starfleet.net')
+//     .then((r) => {
+// 	console.log(r);
+// 	Users.addUser('will@starfleet.net')
+// 	    .then((r) => {
+// 		console.log(r)
+// 		Users.verifyUser('will@starfleet.net')
+// 		setTimeout(() => {
+// 		    Users.addUser('will@starfleet.net');
+// 		}, 1000);
+// 	    });
+//     });
 
 
