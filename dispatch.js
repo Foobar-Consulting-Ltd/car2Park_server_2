@@ -117,7 +117,7 @@ exports.main = function(req, res, reqType){
 
 
     case 'login':
-	if(!(email in req.body)){
+	if(!('user_email' in req.body)){
 	    res.status(400).end();
 	    return;
 	}
