@@ -121,7 +121,7 @@ exports.main = function(req, res, reqType){
 	    res.status(400).end();
 	    return;
 	}
-	const ePat = /\w+@\w+\.\w+/i;
+	const ePat = /(\w|\.|_)+@(\w|\.)+\.\w+/i;
 	var email = ePat.exec(req.body.user_email);
 	console.log('got login request');
 	console.log(email);
