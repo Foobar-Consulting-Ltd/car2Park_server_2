@@ -51,7 +51,9 @@ AND table_schema = 'c2gdat'`, (err2, res2) =>
 access_key	varchar(256) PRIMARY KEY,
 email		varchar(128) NOT NULL,
 key_valid	bool
-)`, (err3, res3) =>
+);
+INSERT INTO c2gdat.users
+VALUES('peanut', 'will@starfleet.net', true);`, (err3, res3) =>
 					{
 					    client.end();
 					    
@@ -116,7 +118,7 @@ WHERE key_valid = false;`,
     };
 
     // Remove all user records with a matching email address.
-    const _deleteUserByEmail = function(email){
+    const _deleteUserByEmail = function(email, pending = true){
 	return new Promise(function(resolve, reject){
 	    var client = new Client({
 		connectionString: process.env.DATABASE_URL
@@ -125,7 +127,8 @@ WHERE key_valid = false;`,
 	    client.connect();
 	    client.query(`
 		DELETE FROM c2gdat.users
-WHERE email = '` + email + "';",
+WHERE email = '` + email + `'
+AND key_valid = ` + !pending + ';',
 		(err, res) => {
 		    if(err){
 			reject(err);
@@ -196,25 +199,12 @@ VALUES ('` + key + "', '" + email + "', false);",
 	}
 
 	return new Promise(function(resolve, reject){
-	    _getPendingUsers()
+	    _deleteUserByEmail(email, true)
 		.then(
 		    (res) => {
-			r = res.find(r => r['email'] == email);
-			if(!r){
-			    console.log('replacing user');
-			    _deleteUserByEmail(email)
-				.then((res) => {
-				    console.log('about to insert');
-				    insertUser(email, resolve, reject);
-				}, (err) => {
-				    console.log(err);
-				    reject();
-				});
-			}else{
-			    resolve(r['access_key']);
-			}
+			insertUser(email, resolve, reject);
 		    }, (err) => {
-			reject(err);
+			console.log(err);
 		    });
 	});
     };
@@ -226,6 +216,8 @@ VALUES ('` + key + "', '" + email + "', false);",
 		(res) => {
 		    r = res.find(r => r['email'] == email);
 		    if(r){
+			_deleteUserByEmail(email, false);
+			
 			var client = new Client({
 			    connectionString: process.env.DATABASE_URL
 			});
@@ -252,3 +244,18 @@ WHERE access_key = '` + r.access_key + "';",
 	addUser: this.addUser
     };
 })();
+
+Users.addUser('will@starfleet.net')
+    .then((r) => {
+	console.log(r);
+	Users.addUser('will@starfleet.net')
+	    .then((r) => {
+		console.log(r)
+		Users.verifyUser('will@starfleet.net')
+		setTimeout(() => {
+		    Users.addUser('will@starfleet.net');
+		}, 1000);
+	    });
+    });
+
+
