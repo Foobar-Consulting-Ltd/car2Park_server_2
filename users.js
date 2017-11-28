@@ -211,30 +211,35 @@ VALUES ('` + key + "', '" + email + "', false);",
 
     //Validates a user based on the provided email
     this.verifyUser = function(email){
-	_getPendingUsers()
-	    .then(
-		(res) => {
-		    r = res.find(r => r['email'] == email);
-		    if(r){
-			_deleteUserByEmail(email, false);
-			
-			var client = new Client({
-			    connectionString: process.env.DATABASE_URL
-			});
-			client.connect();
-			client.query(
-			    `UPDATE c2gdat.users
+	return new Promise(function(resolve, reject){
+	    _getPendingUsers()
+		.then(
+		    (res) => {
+			r = res.find(r => r['email'] == email);
+			if(r){
+			    _deleteUserByEmail(email, false);
+			    
+			    var client = new Client({
+				connectionString: process.env.DATABASE_URL
+			    });
+			    client.connect();
+			    client.query(
+				`UPDATE c2gdat.users
 SET key_valid = true
 WHERE access_key = '` + r.access_key + "';",
-			    (err, res) => {
-				client.end();
-			    });
-		    }else{
-			console.log('User ' + email + ' not pending');
-		    }
-		}, (err) => {
-		    console.log(err);
-		});
+				(err, res) => {
+				    client.end();
+				    resolve();
+				});
+			}else{
+			    console.log('User ' + email + ' not pending');
+			    reject();
+			}
+		    }, (err) => {
+			console.log(err);
+			reject();
+		    });
+	});
     };
     
     return {

@@ -59,9 +59,12 @@ var VerifyEmail = exports.VerifyEmail = function(id){
 				reject("Please enter your email again to verify", 500);
 			}
 			console.log("GET HERE");
-			users.verifyUser(email);
-			resolve("YAY");
-
+		    users.verifyUser(email)
+			.then((res) => {
+			    resolve("YAY");
+			}, (err) => {
+			    reject(err);
+			});
 		});
 	}
 
