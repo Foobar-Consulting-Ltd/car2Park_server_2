@@ -158,7 +158,7 @@ exports.main = function(req, res, reqType){
 	loginVerification.verifyEmail()
 		.then((response) => {
 			console.log('YAY', response);
-		    res.redirect('./Success.svg');
+		    res.redirect('./success.html');
 			res.end();
 		}, (err) => {
 			console.log("bad");
