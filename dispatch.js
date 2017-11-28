@@ -162,7 +162,7 @@ exports.main = function(req, res, reqType){
 			res.end();
 		}, (err) => {
 			console.log("bad");
-			res.send("Something went wrong with verifying your email");
+		    res.redirect('./BadKey.html');
 			res.end();
 		});
 	break;
