@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser')
 var app = express();
 app.use(cookieParser());		// Parse cookies from incoming messages
 app.use(bodyParser.json());		// Parse json-encoded body of post request
+app.use(express.static('public'));	// Serve static content
 
 var dispatch = require('./dispatch.js');
 var passport = require('passport');
